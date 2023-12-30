@@ -3,26 +3,31 @@
 namespace App\Models;
 
 use App\Models\Bus;
-use App\Models\Booking;
 use App\Models\Location;
+use App\Models\SeatAllocation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Trip extends Model
 {
-    protected $fillable = ['date', 'from', 'to', 'seats', 'fare'];
+    use HasFactory;
+    protected $fillable= ['bus_id', 'trip_date', 'trip_time', 'start_from', 'destination'];
 
-    // Relationship with bookings
-    public function bus()
-    {
-        return $this->hasOne(Bus::class);
+    public function startLocation():BelongsTo{
+        return $this->belongsTo(Location::class, 'start_from');
     }
-    public function location()
-    {
-        return $this->hasOne(Location::class);
+
+    public function endLocation():BelongsTo{
+        return $this->belongsTo(Location::class, 'destination');
     }
-    public function bookings()
-    {
-        return $this->hasMany(Booking::class);
+
+    public function bus():BelongsTo{
+        return $this->belongsTo(Bus::class);
+    }
+
+    public function seat():HasMany{
+        return $this->hasMany(SeatAllocation::class);
     }
 }

@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BusController;
+use App\Http\Controllers\FareController;
 use App\Http\Controllers\TripController;
-use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,31 +21,55 @@ use App\Http\Controllers\LocationController;
 
 Route::get('/', function () {
     return view('welcome');
-})->name('/');
-Route::group([],function () {
-    //Buses
-    Route::get('/all-buses', [BusController::class, 'index'])->name('all-buses');
-    Route::post('/new-bus', [BusController::class, 'store'])->name('new-bus');
-    Route::put('/all-buses', [BusController::class, 'update'])->name('bus-update');
-    Route::delete('/all-buses', [BusController::class, 'destroy'])->name('bus-delete');
-    Route::get('/get-bus-details/{busId}', [BusController::class, 'getBusDetails']);
-    //Locations
-    Route::get('/all-locations', [LocationController::class, 'index'])->name('all-locations');
-    Route::post('/new-location', [LocationController::class, 'store'])->name('new-location');
-    Route::put('/all-locations/{locationID}', [LocationController::class, 'update']);
-    Route::delete('/all-locations/{locationID}', [LocationController::class, 'destroy']);
-    Route::get('/get-location-details/{locationId}', [LocationController::class, 'getLocationDetails']);
-    //Trips
-    Route::get('/all-trips', [TripController::class, 'index'])->name('all-trips');
-    Route::post('/new-trip', [TripController::class, 'store'])->name('new-trip');
-    Route::put('/all-trips/{tripID}', [TripController::class, 'update']);
-    Route::delete('/all-trips/{tripID}', [TripController::class, 'destroy']);
-    Route::get('/get-trip-details/{tripId}', [TripController::class, 'getTripDetails']);
-    //Booking
-    Route::get('/all-bookings', [BookingController::class, 'index'])->name('all-bookings');
-    Route::post('/new-booking', [BookingController::class, 'store'])->name('new-booking');
-    Route::put('/all-bookings/{bookingID}', [BookingController::class, 'update']);
-    Route::delete('/all-bookings/{bookingID}', [BookingController::class, 'destroy']);
-    Route::get('/get-bookinh-details/{bookingId}', [BookingController::class, 'getBookingDetails']);
-
 });
+
+Route::get('/dashboard', function () {
+    return view('backend.pages.dashboard.dashboard-page');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/logout', [DashboardController::class, 'Logout'])->name('dashboard.logout');
+});
+Route::middleware('auth')->group(function(){
+    //location crud
+    Route::controller(LocationController::class)->group(function(){
+        Route::get('/location','LocationPage')->name('location.page');
+        Route::get('/location/create','Create')->name('location.create');
+        Route::post('/store','Store')->name('location.store');
+        Route::get('/location/edit/{id}','Edit')->name('location.edit');
+        Route::post('/update','Update')->name('location.update.now');
+        Route::get('/delete/{id}','Delete');
+    });
+    //bus crud
+    Route::controller(BusController::class)->group(function(){
+        Route::get('/bus','BusPage')->name('bus.page');
+        Route::get('/bus/create','Create')->name('bus.create');
+        Route::post('/store','Store')->name('bus.store');
+        Route::get('/bus/edit/{id}','Edit')->name('bus.edit');
+        Route::post('/update/{id}','Update')->name('bus.update');
+        Route::get('/delete/{id}','Delete');
+    });
+    //fare crud
+    Route::controller(FareController::class)->group(function(){
+        Route::get('/fare','FarePage')->name('fare.page');
+        Route::get('/fare/create','Create')->name('fare.create');
+        Route::post('/store','Store')->name('fare.store');
+        Route::get('/fare/edit/{id}','Edit')->name('fare.edit');
+        Route::post('/update/{id}','Update')->name('fare.update');
+        Route::get('/delete/{id}','Delete');
+    });
+    //trip crud
+    Route::controller(TripController::class)->group(function(){
+        Route::get('/trip','FarePage')->name('trip.page');
+        Route::get('/trip/create','Create')->name('trip.create');
+        Route::post('/store','Store')->name('trip.store');
+        Route::get('/trip/edit/{id}','Edit')->name('trip.edit');
+        Route::post('/update/{id}','Update')->name('trip.update');
+        Route::get('/delete/{id}','Delete');
+    });
+});
+
+require __DIR__.'/auth.php';
